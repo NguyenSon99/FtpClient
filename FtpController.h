@@ -9,41 +9,35 @@
 
 class FtpController : public QObject
 {
-    Q_OBJECT
-private:
-    QFtp *ftp;
-    QString ftpServerAddress = "ftp.dlptest.com";
-       int ftpServerPortNumber = 21;
-       QString ftpUsername = "dlpuser";
-       QString ftpPassword = "rNrKYTX9g7z3RgJRmxWuGHbeu";
-        QStringList fileList;
+   Q_OBJECT
+   Q_PROPERTY(QStringList  fileList READ getFileList  NOTIFY fileListChanged)
+   QFtp *ftp;
+   QString ftpServerAddress ;
+   int ftpServerPortNumber ;
+   QString ftpUsername ;
+   QString ftpPassword ;
+   QFile *downloadFile;
+
+QStringList m_fileList;
 
 public:
-    explicit FtpController(QObject *parent = nullptr);
-//       void connectFTPServer();
-        void getListFileFromFTPServer();
+   explicit FtpController(QObject *parent = nullptr);
+       Q_INVOKABLE void getListFileFromFTPServer();
+       Q_INVOKABLE void uploadFileToFTPServer(const QString& localFilePath, const QString& remoteFilePath);
+       Q_INVOKABLE void downloadFTPFile(const QString &ftpFilePath, const QString &downloadFilePath);
+       Q_INVOKABLE void setFtpServerAddress(QString ftpServerAddress);
+       Q_INVOKABLE void setFtpServerPortNumber(int ftpServerPortNumber);
+       Q_INVOKABLE void setFtpUsername(QString ftpUsername);
+       Q_INVOKABLE void setFtpPassword(QString ftpPassword);
+       QStringList getFileList() const;
+       void addFileToList(const QString &fileName);
 
 signals:
+void fileListChanged();
+
 private slots:
-    void onListInfo(const QUrlInfo &info) {
-        fileList.append(info.name()); // Thêm file vào danh sách
-    }
-
-    void     onCommandFinished(int commandId, bool error) {
-            if (error) {
-                qDebug() << "FTP command failed: " << ftp->errorString();
-            } else {
-                qDebug() << "FTP command finished successfully.";
-            }
-
-            // Chỉ hiển thị danh sách file khi lệnh `list` hoàn thành
-            if (ftp->currentCommand() == QFtp::List) {
-                qDebug() << "List of files:";
-                for (const QString &fileName : fileList) {
-                    qDebug() << "- " << fileName;
-                }
-            }
-        }
+   void onListInfo(const QUrlInfo &info) ;
+   void onCommandFinished(int commandId, bool error) ;
 };
 
 #endif // FTPCONTROLLER_H
