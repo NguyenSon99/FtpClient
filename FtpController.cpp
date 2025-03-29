@@ -15,9 +15,11 @@ FtpController::FtpController(QObject *parent) : QObject(parent)
 
 void FtpController::getListFileFromFTPServer()
 {
-   qDebug() << "Connecting to FTP server...";
+     if (ftp->state()  == QFtp::Unconnected) {
+          qDebug() << "Connecting to FTP server...";
           ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
           ftp->login(ftpUsername, ftpPassword);
+     }
           ftp->list();
 
 }
@@ -44,8 +46,10 @@ void FtpController::downloadFTPFile(const QString &ftpFilePath, const QString &d
        downloadFile = nullptr;
        return;
    }
+   if (ftp->state()  == QFtp::Unconnected) {
    ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
    ftp->login(ftpUsername, ftpPassword);
+   }
    ftp->get(ftpFilePath, downloadFile);
 }
 
@@ -70,7 +74,29 @@ void FtpController::setFtpUsername(QString ftpUsername)
 void FtpController::setFtpPassword(QString ftpPassword)
 {
    qDebug()<< "setFtpPassword :"<< ftpPassword;
-this->ftpPassword = ftpPassword;
+   this->ftpPassword = ftpPassword;
+}
+
+void FtpController::deleteFileFromFTPServer(const QString &ftpFilePath)
+{
+    qDebug() << "Deleting file:" << ftpFilePath;
+    if (ftp->state()  == QFtp::Unconnected) {
+    ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
+    ftp->login(ftpUsername, ftpPassword);
+    }
+    ftp->remove(ftpFilePath);
+    ftp->list();
+}
+
+void FtpController::renameFileOnFTPServer(const QString &oldFilePath, const QString &newFilePath)
+{
+    qDebug() << "Renaming file from" << oldFilePath << "to" << newFilePath;
+    if (ftp->state()  == QFtp::Unconnected) {
+    ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
+    ftp->login(ftpUsername, ftpPassword);
+    }
+    ftp->rename(oldFilePath, newFilePath);
+    ftp->list();
 }
 
 void FtpController::addFileToList(const QString &fileName)
@@ -83,11 +109,6 @@ QStringList FtpController::getFileList() const
 {
     return m_fileList;
 }
-
-//QStringList FtpController::getFlieList()
-//{
-//return fileList;
-//}
 
 void FtpController::onListInfo(const QUrlInfo &info)
 {
@@ -103,12 +124,12 @@ void FtpController::onCommandFinished(int commandId, bool error)
        }
 
        // Chỉ hiển thị danh sách file khi lệnh `list` hoàn thành
-       if (ftp->currentCommand() == QFtp::List) {
-           qDebug() << "List of files:";
-           for (const QString &fileName : m_fileList) {
-               qDebug() << "- " << fileName;
-           }
-       }
+//       if (ftp->currentCommand() == QFtp::List) {
+//           qDebug() << "List of files:";
+//           for (const QString &fileName : m_fileList) {
+//               qDebug() << "- " << fileName;
+//           }
+//       }
 }
 
 

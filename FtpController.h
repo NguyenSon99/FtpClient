@@ -29,6 +29,8 @@ public:
        Q_INVOKABLE void setFtpServerPortNumber(int ftpServerPortNumber);
        Q_INVOKABLE void setFtpUsername(QString ftpUsername);
        Q_INVOKABLE void setFtpPassword(QString ftpPassword);
+       Q_INVOKABLE void deleteFileFromFTPServer(const QString &ftpFilePath);
+       Q_INVOKABLE void renameFileOnFTPServer(const QString &oldFilePath, const QString &newFilePath);
        QStringList getFileList() const;
        void addFileToList(const QString &fileName);
 

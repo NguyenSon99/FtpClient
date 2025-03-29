@@ -115,11 +115,15 @@ Window {
                    }
                    MenuItem {
                        text: "Rename"
-                       onTriggered: console.log("Renaming " + listFtp.model[listFtp.currentIndex])
+                       onTriggered: {
+                                   renameDialog.open()
+                                   renameTextField.text = listFtp.model[listFtp.currentIndex] // Gán tên cũ vào ô nhập
+                               }
                    }
                    MenuItem {
                        text: "Delete"
-                       onTriggered: console.log("Deleting " + listFtp.model[listFtp.currentIndex])
+                       onTriggered: {console.log("Deleting " + listFtp.model[listFtp.currentIndex])
+                       FtpClient.deleteFileFromFTPServer(listFtp.model[listFtp.currentIndex].toString())}
                    }
                }
             }
@@ -128,7 +132,7 @@ Window {
 
    FileDialog {
            id: fileDialog
-           title: "Select a Folder"
+           title: "Select a folder to save"
            selectFolder: true
 
            onAccepted: {
@@ -143,5 +147,46 @@ Window {
                console.log("File selection canceled")
            }
        }
+   Popup {
+       id: renameDialog
+       width: 300
+       height: 150
+       modal: true
+       focus: true
+       closePolicy: Popup.CloseOnEscape
+
+       Column {
+           anchors.centerIn: parent
+           spacing: 10
+
+           Text {
+               text: "Enter new name:"
+           }
+
+           TextField {
+               id: renameTextField
+               width: 200
+           }
+
+           Row {
+               spacing: 10
+               Button {
+                   text: "OK"
+                   onClicked: {
+                       let oldName = listFtp.model[listFtp.currentIndex]
+                       let newName = renameTextField.text.trim()
+                       if (newName !== "" && newName !== oldName) {
+                           FtpClient.renameFileOnFTPServer(oldName, newName)
+                           renameDialog.close()
+                       }
+                   }
+               }
+               Button {
+                   text: "Cancel"
+                   onClicked: renameDialog.close()
+               }
+           }
+       }
+   }
     }
 
