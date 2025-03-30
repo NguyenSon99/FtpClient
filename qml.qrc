@@ -4,6 +4,6 @@
         <file>RenamePopup.qml</file>
         <file>DownLoadDialog.qml</file>
         <file>DisplayLog.qml</file>
-        <file>UploadDialo.qml</file>
+        <file>UploadDialog.qml</file>
     </qresource>
 </RCC>

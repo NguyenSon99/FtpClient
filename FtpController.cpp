@@ -16,47 +16,52 @@ FtpController::FtpController(QObject *parent) : QObject(parent)
 
 void FtpController::getListFileFromFTPServer()
 {
-     if (ftp->state()  == QFtp::Unconnected) {
-          emit newLogMessage( "Connecting to FTP server...");
-          ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
-          ftp->login(ftpUsername, ftpPassword);
-     }
-     emit newLogMessage( "Update list file");
-     m_fileList.clear();
-     emit fileListChanged();
-          ftp->list();
+    if (ftp->state()  == QFtp::Unconnected) {
+        emit newLogMessage( "Connecting to FTP server...");
+        ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
+        ftp->login(ftpUsername, ftpPassword);
+    }
+    emit newLogMessage( "Update list file");
+    m_fileList.clear();
+    emit fileListChanged();
+    ftp->list();
 
 }
 
-void FtpController::uploadFileToFTPServer(const QString &localFilePath, const QString &remoteFilePath)
+void FtpController::uploadFileToFTPServer(const QString &localFilePath)
 {
-   QFile *file = new QFile(localFilePath);
-   if (!file->open(QIODevice::ReadOnly)) {
-       emit newLogMessage( "Failed to open file for upload:" + localFilePath);
-       delete file;
-       return;
-   }
-   qDebug() << "Uploading file:" << localFilePath << "to" << remoteFilePath;
-   m_fileList.clear();
-   emit fileListChanged();
-   ftp->put(file, remoteFilePath);
+    QFile *file = new QFile(localFilePath);
+    if (!file->open(QIODevice::ReadOnly)) {
+        emit newLogMessage( "Failed to open file for upload:" + localFilePath);
+        delete file;
+        return;
+    }
+    emit newLogMessage(  "Uploading file: " +localFilePath + " to " + this->ftpServerAddress);
+    ftp->setTransferMode(QFtp::Passive);
+    qDebug() << "📤 Starting upload...";
+    QString remoteFileName = QFileInfo(localFilePath).fileName();
+    ftp->put(file, remoteFileName);
+    m_fileList.clear();
+    emit fileListChanged();
+    ftp->list();
+
 }
 
 void FtpController::downloadFTPFile(const QString &ftpFilePath, const QString &downloadFilePath)
 {
-   emit newLogMessage( "File " + ftpFilePath + " is downloading...");
-   downloadFile = new QFile(downloadFilePath);
-   if (!downloadFile->open(QIODevice::WriteOnly)) {
-       emit newLogMessage(  "Failed to open file for writing:" + downloadFilePath);
-       delete downloadFile;
-       downloadFile = nullptr;
-       return;
-   }
-   if (ftp->state()  == QFtp::Unconnected) {
-   ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
-   ftp->login(ftpUsername, ftpPassword);
-   }
-   ftp->get(ftpFilePath, downloadFile);
+    emit newLogMessage( "File " + ftpFilePath + " is downloading...");
+    downloadFile = new QFile(downloadFilePath);
+    if (!downloadFile->open(QIODevice::WriteOnly)) {
+        emit newLogMessage(  "Failed to open file for writing:" + downloadFilePath);
+        delete downloadFile;
+        downloadFile = nullptr;
+        return;
+    }
+    if (ftp->state()  == QFtp::Unconnected) {
+        ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
+        ftp->login(ftpUsername, ftpPassword);
+    }
+    ftp->get(ftpFilePath, downloadFile);
 }
 
 void FtpController::setFtpServerAddress(QString ftpServerAddress)
@@ -164,7 +169,7 @@ void FtpController::onCommandFinished( int commandId,bool error)
         }
     } else {
         qDebug() << "✅ FTP command finished successfully.";
-        emit newLogMessage("✅ FTP command finished successfully.");
+//        emit newLogMessage("✅ FTP command finished successfully.");
     }
 }
 

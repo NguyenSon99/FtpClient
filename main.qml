@@ -60,10 +60,20 @@ Window {
        }
    }
 
+   UploadDialog{
+       id : uploadArea
+       anchors{
+           top: inforText.bottom
+           topMargin: 10
+           left: parent.left
+           leftMargin: 10
+       }
+   }
+
    DisplayLog{
        id: logArea
        anchors{
-           top: inforText.bottom
+           top: uploadArea.bottom
            topMargin: 10
            left: parent.left
            leftMargin: 10
@@ -139,12 +149,12 @@ Window {
 
    DownLoadDialog{
        id: fileDialog
-       fileNameTosave : listFtp.model[listFtp.currentIndex]
+       fileNameTosave :  (listFtp.currentIndex >= 0) ? listFtp.model[listFtp.currentIndex] : ""
    }
 
    RenamePopup{
        id: renameDialog
-       oldName: listFtp.model[listFtp.currentIndex]
+       oldName:  (listFtp.currentIndex >= 0) ? listFtp.model[listFtp.currentIndex] : ""
    }
  }
 

@@ -6,6 +6,7 @@
 #include <QFtp>
 #include <QFile>
 #include <QStringList>
+#include <QFileInfo>
 
 class FtpController : public QObject
 {
@@ -23,7 +24,7 @@ QStringList m_fileList;
 public:
    explicit FtpController(QObject *parent = nullptr);
        Q_INVOKABLE void getListFileFromFTPServer();
-       Q_INVOKABLE void uploadFileToFTPServer(const QString& localFilePath, const QString& remoteFilePath);
+       Q_INVOKABLE void uploadFileToFTPServer(const QString& localFilePath);
        Q_INVOKABLE void downloadFTPFile(const QString &ftpFilePath, const QString &downloadFilePath);
        Q_INVOKABLE void setFtpServerAddress(QString ftpServerAddress);
        Q_INVOKABLE void setFtpServerPortNumber(int ftpServerPortNumber);
