@@ -69,6 +69,15 @@ Window {
            leftMargin: 10
        }
    }
+   Button {
+       anchors.left: uploadArea.right
+       text: "History"
+       onClicked: {
+           var component = Qt.createComponent("LogWindow.qml");
+           var window = component.createObject();
+           window.show();
+       }
+   }
 
    DisplayLog{
        id: logArea

@@ -5,5 +5,6 @@
         <file>DownLoadDialog.qml</file>
         <file>DisplayLog.qml</file>
         <file>UploadDialog.qml</file>
+        <file>LogWindow.qml</file>
     </qresource>
 </RCC>

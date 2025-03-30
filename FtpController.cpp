@@ -41,6 +41,7 @@ void FtpController::uploadFileToFTPServer(const QString &localFilePath)
     qDebug() << "📤 Starting upload...";
     QString remoteFileName = QFileInfo(localFilePath).fileName();
     ftp->put(file, remoteFileName);
+    addLogHistory("UPLOAD", localFilePath);
     m_fileList.clear();
     emit fileListChanged();
     ftp->list();
@@ -62,6 +63,7 @@ void FtpController::downloadFTPFile(const QString &ftpFilePath, const QString &d
         ftp->login(ftpUsername, ftpPassword);
     }
     ftp->get(ftpFilePath, downloadFile);
+    addLogHistory("DOWNLOAD",ftpFilePath+" To" +downloadFilePath);
 }
 
 void FtpController::setFtpServerAddress(QString ftpServerAddress)
@@ -92,10 +94,11 @@ void FtpController::deleteFileFromFTPServer(const QString &ftpFilePath)
 {
     emit newLogMessage( "Deleting file: " + ftpFilePath);
     if (ftp->state()  == QFtp::Unconnected) {
-    ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
-    ftp->login(ftpUsername, ftpPassword);
+        ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
+        ftp->login(ftpUsername, ftpPassword);
     }
     ftp->remove(ftpFilePath);
+    addLogHistory("DELETE", ftpFilePath);
     m_fileList.clear();
     emit fileListChanged();
     ftp->list();
@@ -105,13 +108,56 @@ void FtpController::renameFileOnFTPServer(const QString &oldFilePath, const QStr
 {
     emit newLogMessage(  "Renaming file from " + oldFilePath + " to " + newFilePath);
     if (ftp->state()  == QFtp::Unconnected) {
-    ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
-    ftp->login(ftpUsername, ftpPassword);
+        ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
+        ftp->login(ftpUsername, ftpPassword);
     }
     ftp->rename(oldFilePath, newFilePath);
+    addLogHistory("RENAME", oldFilePath + " TO " + newFilePath);
     m_fileList.clear();
     emit fileListChanged();
     ftp->list();
+}
+
+QStringList FtpController::readLogFile()
+{
+    QStringList logList;
+    QString logDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(logDir);
+    QString logFilePath = logDir + "/historyLog.txt";
+    qDebug() << logFilePath;
+       QFile file(logFilePath);
+
+       if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+           qDebug() << "⚠️ Không thể mở file log để đọc.";
+           logList.append("⚠️ Lỗi: Không thể mở file log.");
+           return logList;
+       }
+
+       QTextStream in(&file);
+       while (!in.atEnd()) {
+           logList.append(in.readLine());  // Đọc từng dòng vào danh sách
+       }
+
+       file.close();
+       return logList;
+}
+
+void FtpController::addLogHistory(const QString &action, const QString &details)
+{
+    QString logDir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+    QDir().mkpath(logDir);
+
+    QString logFilePath = logDir + "/historyLog.txt";
+    qDebug() << logFilePath;
+    QFile file(logFilePath);
+    if (file.open(QIODevice::Append | QIODevice::Text)) {
+        QTextStream out(&file);
+        QString timestamp = QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss");
+        out << "[" << timestamp << "] " << ftpUsername <<" : "<< action << " - " << details << "\n";
+        file.close();
+    } else {
+        qDebug() << "⚠️ Cannot open history file for writing.";
+    }
 }
 
 void FtpController::addFileToList(const QString &fileName)

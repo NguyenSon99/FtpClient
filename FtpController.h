@@ -7,6 +7,10 @@
 #include <QFile>
 #include <QStringList>
 #include <QFileInfo>
+#include <QTextStream>
+#include <QDateTime>
+#include <QStandardPaths>
+#include <QDir>
 
 class FtpController : public QObject
 {
@@ -18,8 +22,8 @@ class FtpController : public QObject
    QString ftpUsername ;
    QString ftpPassword ;
    QFile *downloadFile;
-
-QStringList m_fileList;
+//   QString logFilePath;
+   QStringList m_fileList;
 
 public:
    explicit FtpController(QObject *parent = nullptr);
@@ -32,6 +36,8 @@ public:
        Q_INVOKABLE void setFtpPassword(QString ftpPassword);
        Q_INVOKABLE void deleteFileFromFTPServer(const QString &ftpFilePath);
        Q_INVOKABLE void renameFileOnFTPServer(const QString &oldFilePath, const QString &newFilePath);
+       Q_INVOKABLE QStringList readLogFile();
+       void addLogHistory(const QString &action, const QString &details);
        QStringList getFileList() const;
        void addFileToList(const QString &fileName);
        void displayLog(const QString &log);
