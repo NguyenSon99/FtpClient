@@ -33,9 +33,11 @@ public:
        Q_INVOKABLE void renameFileOnFTPServer(const QString &oldFilePath, const QString &newFilePath);
        QStringList getFileList() const;
        void addFileToList(const QString &fileName);
+       void displayLog(const QString &log);
 
 signals:
 void fileListChanged();
+void newLogMessage(QString message);
 
 private slots:
    void onListInfo(const QUrlInfo &info) ;

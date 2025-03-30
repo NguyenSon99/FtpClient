@@ -6,7 +6,7 @@ import QtQuick.Dialogs 1.3
 Window {
    visible: true
    width: 670
-   height: 400
+   height: 500
    title: "FTP Client"
 
 
@@ -60,12 +60,23 @@ Window {
        }
    }
 
+   DisplayLog{
+       id: logArea
+       anchors{
+           top: inforText.bottom
+           topMargin: 10
+           left: parent.left
+           leftMargin: 10
+       }
+   }
+
    Rectangle{
        id : listFileCover
        width: 650
        height : 300
+       radius: 5
        anchors{
-           top: inforText.bottom
+           top: logArea.bottom
            topMargin: 10
            left: parent.left
            leftMargin: 10
@@ -76,9 +87,9 @@ Window {
        ListView {
            id: listFtp
            anchors{
-           top: parent.top
-           topMargin: 20
-           horizontalCenter: parent.horizontalCenter
+               top: parent.top
+               topMargin: 20
+               horizontalCenter: parent.horizontalCenter
            }
            width: parent.width-20
            height: parent.height-50
@@ -102,7 +113,6 @@ Window {
                        popup.y = mouseY
                        popup.open()
                    }
-
                }
                Menu {
                    id: popup
@@ -115,10 +125,7 @@ Window {
                    }
                    MenuItem {
                        text: "Rename"
-                       onTriggered: {
-                                   renameDialog.open()
-                                   renameTextField.text = listFtp.model[listFtp.currentIndex] // Gán tên cũ vào ô nhập
-                               }
+                       onTriggered: renameDialog.open()
                    }
                    MenuItem {
                        text: "Delete"
@@ -127,66 +134,17 @@ Window {
                    }
                }
             }
-           }
+          }
        }
 
-   FileDialog {
-           id: fileDialog
-           title: "Select a folder to save"
-           selectFolder: true
-
-           onAccepted: {
-               var fileNameTosave = listFtp.model[listFtp.currentIndex]
-               var partToSave = fileDialog.folder.toString()
-               partToSave = partToSave.substring(7) +"/"+fileNameTosave
-               console.log("Selected link to save file: " + partToSave)
-               FtpClient.downloadFTPFile(fileNameTosave,partToSave)
-           }
-
-           onRejected: {
-               console.log("File selection canceled")
-           }
-       }
-   Popup {
-       id: renameDialog
-       width: 300
-       height: 150
-       modal: true
-       focus: true
-       closePolicy: Popup.CloseOnEscape
-
-       Column {
-           anchors.centerIn: parent
-           spacing: 10
-
-           Text {
-               text: "Enter new name:"
-           }
-
-           TextField {
-               id: renameTextField
-               width: 200
-           }
-
-           Row {
-               spacing: 10
-               Button {
-                   text: "OK"
-                   onClicked: {
-                       let oldName = listFtp.model[listFtp.currentIndex]
-                       let newName = renameTextField.text.trim()
-                       if (newName !== "" && newName !== oldName) {
-                           FtpClient.renameFileOnFTPServer(oldName, newName)
-                           renameDialog.close()
-                       }
-                   }
-               }
-               Button {
-                   text: "Cancel"
-                   onClicked: renameDialog.close()
-               }
-           }
-       }
+   DownLoadDialog{
+       id: fileDialog
+       fileNameTosave : listFtp.model[listFtp.currentIndex]
    }
-    }
+
+   RenamePopup{
+       id: renameDialog
+       oldName: listFtp.model[listFtp.currentIndex]
+   }
+ }
 
