@@ -3,7 +3,7 @@ import QtQuick 2.12
 
 Rectangle {
     id: logContainer
-    width: parent.width-20
+    width: 650
     height: 100
     border.color: "#555"
     border.width: 1

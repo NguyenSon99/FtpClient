@@ -6,7 +6,7 @@ import QtQuick.Dialogs 1.3
 Window {
    visible: true
    width: 670
-   height: 500
+   height: 550
    title: "FTP Client"
 
 
