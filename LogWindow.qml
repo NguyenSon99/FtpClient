@@ -3,7 +3,7 @@ import QtQuick.Controls 2.15
 
 ApplicationWindow {
     id: logWindow
-    width: 600
+    width: 700
     height: 500
     visible: true
     title: "History"
@@ -13,6 +13,7 @@ ApplicationWindow {
     }
 
     Column {
+        width :500
         anchors.fill: parent
         spacing: 10
         padding: 10
@@ -30,7 +31,7 @@ ApplicationWindow {
 
         ListView {
             id: logListView
-            width: parent.width
+            width: parent.width-20
             height: parent.height - 50
             model: logModel
             spacing: 5
@@ -55,7 +56,7 @@ ApplicationWindow {
 
     Component.onCompleted: {
         logModel.clear();
-        var logs = ftpController.readLogFile();
+        var logs = FtpClient.readLogFile();
         for (var i = 0; i < logs.length; i++) {
             logModel.append({ logText: logs[i] });
         }

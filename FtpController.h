@@ -11,6 +11,7 @@
 #include <QDateTime>
 #include <QStandardPaths>
 #include <QDir>
+#include "DownloadTask.h"
 
 class FtpController : public QObject
 {
@@ -21,8 +22,7 @@ class FtpController : public QObject
    int ftpServerPortNumber ;
    QString ftpUsername ;
    QString ftpPassword ;
-   QFile *downloadFile;
-//   QString logFilePath;
+//   QFile *downloadFile;
    QStringList m_fileList;
 
 public:

@@ -70,7 +70,13 @@ Window {
        }
    }
    Button {
-       anchors.left: uploadArea.right
+       width: 85
+       anchors{
+           top: inforText.bottom
+           topMargin: 10
+           left: uploadArea.right
+           leftMargin: 0
+       }
        text: "History"
        onClicked: {
            var component = Qt.createComponent("LogWindow.qml");

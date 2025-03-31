@@ -50,19 +50,12 @@ void FtpController::uploadFileToFTPServer(const QString &localFilePath)
 
 void FtpController::downloadFTPFile(const QString &ftpFilePath, const QString &downloadFilePath)
 {
-    emit newLogMessage( "File " + ftpFilePath + " is downloading...");
-    downloadFile = new QFile(downloadFilePath);
-    if (!downloadFile->open(QIODevice::WriteOnly)) {
-        emit newLogMessage(  "Failed to open file for writing:" + downloadFilePath);
-        delete downloadFile;
-        downloadFile = nullptr;
-        return;
-    }
-    if (ftp->state()  == QFtp::Unconnected) {
-        ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
-        ftp->login(ftpUsername, ftpPassword);
-    }
-    ftp->get(ftpFilePath, downloadFile);
+    DownloadTask *task = new DownloadTask(ftpServerAddress, ftpServerPortNumber, ftpUsername, ftpPassword, ftpFilePath, downloadFilePath);
+
+    connect(task, &DownloadTask::logMessage, this, &FtpController::newLogMessage);
+    connect(task, &QThread::finished, task, &QObject::deleteLater); // Tự động xoá khi xong
+
+    task->start();
     addLogHistory("DOWNLOAD",ftpFilePath+" To" +downloadFilePath);
 }
 
@@ -128,8 +121,7 @@ QStringList FtpController::readLogFile()
        QFile file(logFilePath);
 
        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-           qDebug() << "⚠️ Không thể mở file log để đọc.";
-           logList.append("⚠️ Lỗi: Không thể mở file log.");
+       qDebug() << "⚠️ Cannot open history file for writing.";
            return logList;
        }
 

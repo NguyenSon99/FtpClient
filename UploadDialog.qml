@@ -3,12 +3,12 @@ import QtQuick.Dialogs 1.3
 import QtQuick.Controls 2.15
 
 Row {
-    width: parent.width-20
+    width: 560
     spacing: 10
 
     TextField {
         id: filePath
-        width: parent.width-112
+        width: 440
         placeholderText: "Select a file..."
         readOnly: true
     }
