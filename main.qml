@@ -7,7 +7,7 @@ Window {
    visible: true
    width: 670
    height: 550
-   title: "FTP Client"
+   title: "FT0P Client"
 
 
    Row {
@@ -54,6 +54,9 @@ Window {
                FtpClient.setFtpServerPortNumber(serverPortNumberField.text)
                FtpClient.setFtpUsername(usernameField.text)
                FtpClient.setFtpPassword(passwordField.text)
+               FtpClient.connectToServer();
+               FtpClient.login();
+
                FtpClient.getListFileFromFTPServer()
 
            }
