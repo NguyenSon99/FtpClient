@@ -189,17 +189,21 @@ void FtpController::getListFileFromFTPServer()
     qDebug()  <<  QString::fromStdString(buffer);
 
     // Phân tách thành từng dòng
-    emit newLogMessage( "Update list file");
+    qDebug()<< "Update list file";
     std::istringstream iss(result); //đọc từng dòng từ chuỗi đó
     std::string line;
     m_fileList.clear();
     while (std::getline(iss, line)) {
         std::istringstream linestream(line);
-        std::string token, filename;
-        while (linestream >> token) {
-            filename = token;  // cuối cùng là tên file
+//        std::string token, filename;
+//        while (linestream >> token) {
+//            filename = token;  // cuối cùng là tên file
+//        }
+        if(!line.empty() && line.back()=='\r'){
+            line.pop_back();
         }
-        m_fileList.append(QString::fromStdString(filename));
+        qDebug() << QString::fromStdString(line);
+        m_fileList.append(QString::fromStdString(line));
     }
     emit fileListChanged();
 }
@@ -307,15 +311,23 @@ void FtpController::setFtpPassword(QString ftpPassword)
 void FtpController::deleteFileFromFTPServer(const QString &ftpFilePath)
 {
     emit newLogMessage( "Deleting file: " + ftpFilePath);
-    if (ftp->state()  == QFtp::Unconnected) {
-        ftp->connectToHost(ftpServerAddress, ftpServerPortNumber);
-        ftp->login(ftpUsername, ftpPassword);
+    if (!isLoggedIn) {
+        std::cout << "Chưa đăng nhập vào server FTP!\n";
+        return ;
     }
-    ftp->remove(ftpFilePath);
+
+    // Gửi lệnh DELE
+    std::string response = sendCommand("DELE " + ftpFilePath.toStdString());
+    if (response.find("250") == std::string::npos) {
+        std::cout << "Lỗi khi xóa file: " << response;
+        return ;
+    }
+
+    emit newLogMessage("Đã xóa file " + ftpFilePath + " thành công.");
     addLogHistory("DELETE", ftpFilePath);
-    m_fileList.clear();
-    emit fileListChanged();
-    ftp->list();
+    getListFileFromFTPServer();
+    return ;
+
 }
 
 void FtpController::renameFileOnFTPServer(const QString &oldFilePath, const QString &newFilePath)
@@ -341,6 +353,8 @@ void FtpController::renameFileOnFTPServer(const QString &oldFilePath, const QStr
             }
 
             qDebug() << "Đã đổi tên file " << oldFilePath << " thành " << newFilePath << " thành công.";
+            addLogHistory("RENAME", oldFilePath +" to "+ newFilePath);
+            getListFileFromFTPServer();
             return ;
 }
 
@@ -365,6 +379,25 @@ QStringList FtpController::readLogFile()
 
        file.close();
        return logList;
+}
+
+void FtpController::changeDirectory(const QString &directory)
+{
+    if(!directory.startsWith("d")){
+        emit newLogMessage( "Not a directory");
+        return;
+    }
+    else {
+        QString itemName = directory.section(' ', -1);
+        sendCommand("CWD " + itemName.toStdString());
+        getListFileFromFTPServer();
+    }
+}
+
+void FtpController::backDirectory()
+{
+    sendCommand("CWD ..");
+    getListFileFromFTPServer();
 }
 
 std::string FtpController::sendCommand(const std::string &command)

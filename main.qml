@@ -6,8 +6,8 @@ import QtQuick.Dialogs 1.3
 Window {
    visible: true
    width: 670
-   height: 550
-   title: "FT0P Client"
+   height: 530
+   title: "FTP Client"
 
 
    Row {
@@ -54,9 +54,8 @@ Window {
                FtpClient.setFtpServerPortNumber(serverPortNumberField.text)
                FtpClient.setFtpUsername(usernameField.text)
                FtpClient.setFtpPassword(passwordField.text)
-               FtpClient.connectToServer();
-               FtpClient.login();
-
+               FtpClient.connectToServer()
+               FtpClient.login()
                FtpClient.getListFileFromFTPServer()
 
            }
@@ -73,7 +72,7 @@ Window {
        }
    }
    Button {
-       width: 85
+       width : 85
        anchors{
            top: inforText.bottom
            topMargin: 10
@@ -131,15 +130,22 @@ Window {
 
                Text {
                    id:fileName
-                   text: modelData
+                   text: modelData.split(" ").filter(s => s !== "").pop()
                }
                MouseArea{
                    anchors.fill: parent
-                   onClicked: {
+                   acceptedButtons: Qt.LeftButton | Qt.RightButton
+                   onPressed:  {
+                       if(mouse.button ==Qt.RightButton){
                        listFtp.currentIndex = index
                        popup.x = mouseX
                        popup.y = mouseY
-                       popup.open()
+                       popup.open()}
+                   }
+                   onDoubleClicked: {
+                       listFtp.currentIndex = index
+                       console.log("doubleClick : "+listFtp.model[listFtp.currentIndex].toString())
+                       FtpClient.changeDirectory(listFtp.model[listFtp.currentIndex].toString())
                    }
                }
                Menu {
@@ -148,7 +154,7 @@ Window {
                        text: "Download"
                        onTriggered:{
                            fileDialog.open()
-                           console.log("Downloading " + listFtp.model[listFtp.currentIndex])
+//                           console.log("Downloading " + listFtp.model[listFtp.currentIndex])
                        }
                    }
                    MenuItem {
@@ -157,8 +163,10 @@ Window {
                    }
                    MenuItem {
                        text: "Delete"
-                       onTriggered: {console.log("Deleting " + listFtp.model[listFtp.currentIndex])
-                       FtpClient.deleteFileFromFTPServer(listFtp.model[listFtp.currentIndex].toString())}
+                       onTriggered: {
+//                           console.log("Deleting " + listFtp.model[listFtp.currentIndex])
+                       FtpClient.deleteFileFromFTPServer(listFtp.model[listFtp.currentIndex].split(" ").filter(s => s !== "").pop().toString())
+                       }
                    }
                }
             }
@@ -167,12 +175,11 @@ Window {
 
    DownLoadDialog{
        id: fileDialog
-       fileNameTosave :  (listFtp.currentIndex >= 0) ? listFtp.model[listFtp.currentIndex] : ""
+       fileNameTosave :  (listFtp.currentIndex >= 0) ? listFtp.model[listFtp.currentIndex].split(" ").filter(s => s !== "").pop() : ""
    }
 
    RenamePopup{
        id: renameDialog
-       oldName:  (listFtp.currentIndex >= 0) ? listFtp.model[listFtp.currentIndex] : ""
+       oldName:  (listFtp.currentIndex >= 0) ? listFtp.model[listFtp.currentIndex].split(" ").filter(s => s !== "").pop() : ""
    }
  }
-

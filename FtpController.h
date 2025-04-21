@@ -58,6 +58,8 @@ public:
    Q_INVOKABLE void deleteFileFromFTPServer(const QString &ftpFilePath);
    Q_INVOKABLE void renameFileOnFTPServer(const QString &oldFilePath, const QString &newFilePath);
    Q_INVOKABLE QStringList readLogFile();
+   Q_INVOKABLE void changeDirectory(const QString &directory );
+   Q_INVOKABLE void backDirectory ();
    std::string sendCommand(const std::string &command );
    void addLogHistory(const QString &action, const QString &details);
    QStringList getFileList() const;

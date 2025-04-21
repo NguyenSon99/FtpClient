@@ -8,9 +8,15 @@ Row {
 
     TextField {
         id: filePath
-        width: 440
+        width: 380
         placeholderText: "Select a file..."
         readOnly: true
+    }
+
+    Button {
+        width : 50
+        text: "Back"
+        onClicked: FtpClient.backDirectory()
     }
 
     Button {

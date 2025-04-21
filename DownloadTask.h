@@ -142,6 +142,7 @@ protected:
         QFile file(localPath);
         if (!file.open(QIODevice::WriteOnly)) {
             emit logMessage("Không thể mở file để ghi.");
+            emit logMessage(localPath);
             close(dataSocket);
             return;
         }
